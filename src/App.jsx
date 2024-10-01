@@ -6,10 +6,10 @@ import "./App.css";
 function App() {
   const [greetMsg, setGreetMsg] = useState("");
   const [url, setName] = useState("");
-
+  const username = "karavang";
   async function download() {
     // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-    setGreetMsg(await invoke("download", { url }));
+    setGreetMsg(await invoke("download", { url, username }));
   }
 
   return (

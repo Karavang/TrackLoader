@@ -1,8 +1,7 @@
-#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-
 mod utils;
 
 use crate::utils::{downloader, DownloaderError};
+use std::env;
 
 #[tauri::command]
 fn greet(name: &str) -> String {
@@ -11,13 +10,16 @@ fn greet(name: &str) -> String {
 
 #[tauri::command]
 async fn download(url: String) -> Result<(), String> {
-    match downloader(&url).await {
+    let username = env::var("USER").unwrap_or_else(|_| "default_user".to_string());
+
+    match downloader(&url, &username).await {
         Ok(_) => Ok(()),
         Err(e) => {
             if let Some(downloader_error) = e.downcast_ref::<DownloaderError>() {
                 match downloader_error {
                     DownloaderError::ProgramNotFound => Err("yt-dlp is not installed or not found in PATH. Please install yt-dlp and try again.".to_string()),
                     DownloaderError::DownloadFailed(msg) => Err(format!("Download failed: {}", msg)),
+                    DownloaderError::HomeDirNotFound => Err("Unable to determine the home directory.".to_string()),
                 }
             } else {
                 Err(format!("An unexpected error occurred: {}", e))
