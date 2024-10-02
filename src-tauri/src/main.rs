@@ -1,6 +1,6 @@
-mod utils;
+mod download;
 
-use crate::utils::{downloader, DownloaderError};
+use crate::download::{downloader, DownloaderError};
 use std::env;
 
 #[tauri::command]
@@ -20,6 +20,7 @@ async fn download(url: String) -> Result<(), String> {
                     DownloaderError::ProgramNotFound => Err("yt-dlp is not installed or not found in PATH. Please install yt-dlp and try again.".to_string()),
                     DownloaderError::DownloadFailed(msg) => Err(format!("Download failed: {}", msg)),
                     DownloaderError::HomeDirNotFound => Err("Unable to determine the home directory.".to_string()),
+                    DownloaderError::InvalidTrackloadedPath => Err("Invalid trackloaded path.".to_string()),
                 }
             } else {
                 Err(format!("An unexpected error occurred: {}", e))
