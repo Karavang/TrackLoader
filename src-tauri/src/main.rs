@@ -1,7 +1,9 @@
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+use std::env;
+
 mod download;
 
 use crate::download::{downloader, DownloaderError};
-use std::env;
 
 #[tauri::command]
 fn greet(name: &str) -> String {
@@ -10,9 +12,7 @@ fn greet(name: &str) -> String {
 
 #[tauri::command]
 async fn download(url: String) -> Result<(), String> {
-    let username = env::var("USER").unwrap_or_else(|_| "default_user".to_string());
-
-    match downloader(&url, &username).await {
+    match downloader(&url).await {
         Ok(_) => Ok(()),
         Err(e) => {
             if let Some(downloader_error) = e.downcast_ref::<DownloaderError>() {

@@ -4,7 +4,7 @@ use std::fs;
 use std::io;
 use std::path::{Path, PathBuf};
 use tokio::process::Command;
-
+use whoami;
 #[derive(Debug)]
 pub enum DownloaderError {
     ProgramNotFound,
@@ -36,9 +36,14 @@ fn ensure_trackloaded_exists(selected_dir: &str) -> Result<PathBuf, io::Error> {
     Ok(trackloaded_path)
 }
 
-pub async fn downloader(url: &str, username: &str) -> Result<(), Box<dyn Error>> {
+pub async fn downloader(url: &str) -> Result<(), Box<dyn Error>> {
     let home_dir = env::var("HOME").map_err(|_| DownloaderError::HomeDirNotFound)?;
-    let download_path = format!("{}/Downloads", home_dir);
+    let download_path;
+    if env::consts::OS == "windows" {
+        download_path = format!(r"C:\Users\{}\Downloads", whoami::username())
+    } else {
+        download_path = format!("{}/Downloads", home_dir);
+    }
     let trackloaded_path = ensure_trackloaded_exists(&download_path)?;
     let trackloaded_path_str = trackloaded_path
         .to_str()
@@ -59,10 +64,12 @@ pub async fn downloader(url: &str, username: &str) -> Result<(), Box<dyn Error>>
 
     match output {
         Ok(output) => {
+            println!("aboba");
             if output.status.success() {
-                println!("Download successful for user {}!", username);
+                println!("Download successful for user {}!", whoami::username());
                 Ok(())
             } else {
+                println!("aboba");
                 let error_message = String::from_utf8_lossy(&output.stderr);
                 eprintln!("Failed to download: {}", error_message);
                 Err(Box::new(DownloaderError::DownloadFailed(
@@ -71,6 +78,7 @@ pub async fn downloader(url: &str, username: &str) -> Result<(), Box<dyn Error>>
             }
         }
         Err(e) => {
+            println!("erroraboba:{}", e);
             if e.kind() == std::io::ErrorKind::NotFound {
                 Err(Box::new(DownloaderError::ProgramNotFound))
             } else {

@@ -6,11 +6,10 @@ import "./App.css";
 function App() {
   const [greetMsg, setGreetMsg] = useState("");
   const [url, setName] = useState("");
-  const [username, setUser] = useState("");
 
   async function download() {
     // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-    setGreetMsg(await invoke("download", { url, username }));
+    setGreetMsg(await invoke("download", { url }));
   }
 
   return (
@@ -64,11 +63,7 @@ function App() {
           onChange={(e) => setName(e.currentTarget.value)}
           placeholder="Enter a link..."
         />
-        <input
-          id="greet-input"
-          setUser={(e) => setName(e.currentTarget.value)}
-          placeholder="Enter a username..."
-        />
+
         <button type="submit">Greet</button>
       </form>
 
