@@ -64,12 +64,10 @@ pub async fn downloader(url: &str) -> Result<(), Box<dyn Error>> {
 
     match output {
         Ok(output) => {
-            println!("aboba");
             if output.status.success() {
                 println!("Download successful for user {}!", whoami::username());
                 Ok(())
             } else {
-                println!("aboba");
                 let error_message = String::from_utf8_lossy(&output.stderr);
                 eprintln!("Failed to download: {}", error_message);
                 Err(Box::new(DownloaderError::DownloadFailed(
@@ -78,7 +76,6 @@ pub async fn downloader(url: &str) -> Result<(), Box<dyn Error>> {
             }
         }
         Err(e) => {
-            println!("erroraboba:{}", e);
             if e.kind() == std::io::ErrorKind::NotFound {
                 Err(Box::new(DownloaderError::ProgramNotFound))
             } else {
